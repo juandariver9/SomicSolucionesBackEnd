@@ -1,9 +1,9 @@
 package com.pruebatecnica.kardexone.Controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,26 +19,30 @@ import com.pruebatecnica.kardexone.Service.FacturaKardexService;
 @RequestMapping("/api/facturakardex")
 public class FacturaKardexController {
 
-    @Autowired
-    private FacturaKardexService facturaKardexService;
-    
+    private final FacturaKardexService facturaKardexService;
+
+    public FacturaKardexController(FacturaKardexService facturaKardexService) {
+        this.facturaKardexService = facturaKardexService;
+    }
+
     @GetMapping
     public List<FacturaKardex> obtenerTodos() {
         return facturaKardexService.obtenerTodos();
     }
 
     @GetMapping("/{id}")
-    public Optional<FacturaKardex> obtenerPorId(@PathVariable Long id) {
+    public FacturaKardex obtenerPorId(@PathVariable Long id) {
         return facturaKardexService.obtenerPorId(id);
     }
 
     @PostMapping
-    public FacturaKardex guardar(@RequestBody FacturaKardex facturaKardex) {
-        return facturaKardexService.guardar(facturaKardex);
+    public ResponseEntity<FacturaKardex> guardar(@RequestBody FacturaKardex facturaKardex) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(facturaKardexService.guardar(facturaKardex));
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         facturaKardexService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }
