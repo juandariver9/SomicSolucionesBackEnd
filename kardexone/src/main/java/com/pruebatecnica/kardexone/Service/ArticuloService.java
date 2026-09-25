@@ -1,37 +1,61 @@
 package com.pruebatecnica.kardexone.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.pruebatecnica.kardexone.Exception.RecursoNoEncontradoException;
 import com.pruebatecnica.kardexone.Model.Articulo;
 import com.pruebatecnica.kardexone.Repository.ArticuloRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class ArticuloService {
 
-    @Autowired
-    private ArticuloRepository articuloRepository;
+    private final ArticuloRepository articuloRepository;
+
+    public ArticuloService(ArticuloRepository articuloRepository) {
+        this.articuloRepository = articuloRepository;
+    }
 
     public List<Articulo> obtenerTodos() {
         return articuloRepository.findAll();
     }
 
-    public Optional<Articulo> obtenerPorId(Long id) {
-        return articuloRepository.findById(id);
+    public Articulo obtenerPorId(Long id) {
+        return articuloRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("El artículo", id));
     }
-    
-    public Optional<Articulo> obtenerPorCodigo(String codigo) {
-        return articuloRepository.findByArticuloCodigo(codigo);
+
+    public Articulo obtenerPorCodigo(String codigo) {
+        return articuloRepository.findByArticuloCodigo(codigo)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un artículo con código " + codigo + "."));
     }
-    
+
+    @Transactional
     public Articulo guardar(Articulo articulo) {
+        articulo.setArticuloId(null);
         return articuloRepository.save(articulo);
     }
 
+    @Transactional
+    public Articulo actualizar(Long id, Articulo datos) {
+        Articulo articulo = obtenerPorId(id);
+        articulo.setArticuloCodigo(datos.getArticuloCodigo());
+        articulo.setArticuloNombre(datos.getArticuloNombre());
+        articulo.setArticuloLaboratorio(datos.getArticuloLaboratorio());
+        articulo.setArticuloSaldo(datos.getArticuloSaldo());
+        articulo.setArticuloCosto(datos.getArticuloCosto());
+        articulo.setArticuloPrecioVenta(datos.getArticuloPrecioVenta());
+        return articuloRepository.save(articulo);
+    }
+
+    @Transactional
     public void eliminar(Long id) {
+        if (!articuloRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("El artículo", id);
+        }
         articuloRepository.deleteById(id);
     }
 }
