@@ -1,11 +1,16 @@
 package com.pruebatecnica.kardexone.Model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "nit")
@@ -15,15 +20,23 @@ public class Nit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long nitId;
 
+    @NotBlank(message = "El nombre es obligatorio.")
     @Column(nullable = false)
     private String nitNombre;
 
+    @NotBlank(message = "El documento es obligatorio.")
     @Column(nullable = false, unique = true)
     private String nitDocumento;
 
-    @Column(nullable = false)
-    private Double nitCupo;
+    /** Cupo de crédito del cliente. Un cupo de 0 significa que no tiene límite configurado. */
+    @NotNull(message = "El cupo es obligatorio.")
+    @PositiveOrZero(message = "El cupo no puede ser negativo.")
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal nitCupo;
 
+    /** Plazo de pago en días. */
+    @NotNull(message = "El plazo es obligatorio.")
+    @PositiveOrZero(message = "El plazo no puede ser negativo.")
     @Column(nullable = false)
     private Integer nitPlazo;
 
@@ -51,11 +64,11 @@ public class Nit {
         this.nitDocumento = nitDocumento;
     }
 
-    public Double getNitCupo() {
+    public BigDecimal getNitCupo() {
         return nitCupo;
     }
 
-    public void setNitCupo(Double nitCupo) {
+    public void setNitCupo(BigDecimal nitCupo) {
         this.nitCupo = nitCupo;
     }
 

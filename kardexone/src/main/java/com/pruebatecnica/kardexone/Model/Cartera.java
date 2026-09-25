@@ -1,6 +1,7 @@
 package com.pruebatecnica.kardexone.Model;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,8 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "cartera")
@@ -30,13 +29,11 @@ public class Cartera {
     private Factura factura;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date carteraFecha;
+    private LocalDate carteraFecha;
 
-    @Column(nullable = false)
-    private Double carteraValorPendiente;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal carteraValorPendiente;
 
-    // Getters y Setters
     public Long getCarteraId() {
         return carteraId;
     }
@@ -61,19 +58,20 @@ public class Cartera {
         this.factura = factura;
     }
 
-    public Date getCarteraFecha() {
+    public LocalDate getCarteraFecha() {
         return carteraFecha;
     }
 
-    public void setCarteraFecha(Date carteraFecha) {
+    public void setCarteraFecha(LocalDate carteraFecha) {
         this.carteraFecha = carteraFecha;
     }
 
-    public Double getCarteraValor_pendiente() {
+    // Se conserva el nombre "carteraValor_pendiente" en el JSON porque el frontend lo usa.
+    public BigDecimal getCarteraValor_pendiente() {
         return carteraValorPendiente;
     }
 
-    public void setCarteraValor_pendiente(Double carteraValor_pendiente) {
-        this.carteraValorPendiente = carteraValor_pendiente;
+    public void setCarteraValor_pendiente(BigDecimal carteraValorPendiente) {
+        this.carteraValorPendiente = carteraValorPendiente;
     }
 }

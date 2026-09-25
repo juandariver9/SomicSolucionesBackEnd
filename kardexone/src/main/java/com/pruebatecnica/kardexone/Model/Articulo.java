@@ -1,11 +1,16 @@
 package com.pruebatecnica.kardexone.Model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "articulo")
@@ -15,25 +20,33 @@ public class Articulo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articuloId;
 
+    @NotBlank(message = "El código es obligatorio.")
     @Column(nullable = false, unique = true)
     private String articuloCodigo;
 
+    @NotBlank(message = "El nombre es obligatorio.")
     @Column(nullable = false)
     private String articuloNombre;
 
+    @NotBlank(message = "El laboratorio es obligatorio.")
     @Column(nullable = false)
     private String articuloLaboratorio;
 
+    @NotNull(message = "El saldo es obligatorio.")
+    @PositiveOrZero(message = "El saldo no puede ser negativo.")
     @Column(nullable = false)
     private Integer articuloSaldo;
 
-    @Column(nullable = false)
-    private Double articuloCosto;
+    @NotNull(message = "El costo es obligatorio.")
+    @PositiveOrZero(message = "El costo no puede ser negativo.")
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal articuloCosto;
 
-    @Column(nullable = false)
-    private Double articuloPrecioVenta;
+    @NotNull(message = "El precio de venta es obligatorio.")
+    @PositiveOrZero(message = "El precio de venta no puede ser negativo.")
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal articuloPrecioVenta;
 
-    // Getters y Setters
     public Long getArticuloId() {
         return articuloId;
     }
@@ -74,20 +87,19 @@ public class Articulo {
         this.articuloSaldo = articuloSaldo;
     }
 
-    public Double getArticuloCosto() {
+    public BigDecimal getArticuloCosto() {
         return articuloCosto;
     }
 
-    public void setArticuloCosto(Double articuloCosto) {
+    public void setArticuloCosto(BigDecimal articuloCosto) {
         this.articuloCosto = articuloCosto;
     }
 
-    public Double getArticuloPrecioVenta() {
+    public BigDecimal getArticuloPrecioVenta() {
         return articuloPrecioVenta;
     }
 
-    public void setArticuloPrecioVenta(Double articuloPrecioVenta) {
-        this.articuloPrecioVenta =  articuloPrecioVenta;
+    public void setArticuloPrecioVenta(BigDecimal articuloPrecioVenta) {
+        this.articuloPrecioVenta = articuloPrecioVenta;
     }
-
 }

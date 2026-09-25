@@ -1,5 +1,7 @@
 package com.pruebatecnica.kardexone.Model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,13 +30,13 @@ public class FacturaKardex {
     @Column(nullable = false)
     private Integer fkardexcantidad;
 
-    @Column(nullable = false)
-    private Double fkardexprecio_unitario;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal fkardexprecio_unitario;
 
-    @Column(nullable = false)
-    private Double fkardexsubtotal;
+    /** Lo calcula el servidor: cantidad x precio unitario. */
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal fkardexsubtotal;
 
-    // Getters y Setters
     public Long getFkardexId() {
         return fkardexId;
     }
@@ -67,19 +69,19 @@ public class FacturaKardex {
         this.fkardexcantidad = fkardexcantidad;
     }
 
-    public Double getFkardexprecio_unitario() {
+    public BigDecimal getFkardexprecio_unitario() {
         return fkardexprecio_unitario;
     }
 
-    public void setFkardexprecio_unitario(Double fkardexprecio_unitario) {
+    public void setFkardexprecio_unitario(BigDecimal fkardexprecio_unitario) {
         this.fkardexprecio_unitario = fkardexprecio_unitario;
     }
 
-    public Double getFkardexsubtotal() {
+    public BigDecimal getFkardexsubtotal() {
         return fkardexsubtotal;
     }
 
-    public void setFkardexsubtotal(Double fkardexsubtotal) {
+    public void setFkardexsubtotal(BigDecimal fkardexsubtotal) {
         this.fkardexsubtotal = fkardexsubtotal;
     }
 }

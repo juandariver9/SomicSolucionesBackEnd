@@ -1,5 +1,6 @@
 package com.pruebatecnica.kardexone.Model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -12,8 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "factura")
@@ -27,10 +26,11 @@ public class Factura {
     @JoinColumn(name = "facturaNitId", nullable = false)
     private Nit nit;
 
+    /** La asigna el servidor al guardar. */
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate facturaFecha;
 
+    /** La calcula el servidor según el plazo del cliente. */
     @Column(nullable = false)
     private LocalDate facturaFechaVencimiento;
 
@@ -38,8 +38,8 @@ public class Factura {
     @Column(nullable = false)
     private TipoFactura facturaTipo;
 
-    @Column(nullable = false)
-    private Double facturaTotal;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal facturaTotal;
 
     public Long getFacturaId() {
         return facturaId;
@@ -81,12 +81,11 @@ public class Factura {
         this.facturaTipo = facturaTipo;
     }
 
-    public Double getFacturaTotal() {
+    public BigDecimal getFacturaTotal() {
         return facturaTotal;
     }
 
-    public void setFacturaTotal(Double facturaTotal) {
+    public void setFacturaTotal(BigDecimal facturaTotal) {
         this.facturaTotal = facturaTotal;
     }
-
 }
