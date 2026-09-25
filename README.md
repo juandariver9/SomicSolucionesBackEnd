@@ -7,15 +7,17 @@ API REST construida con **Spring Boot** para gestionar facturación con control 
 - **Clientes (NIT):** registro con documento, cupo de crédito y plazo de pago en días.
 - **Artículos:** catálogo con código, laboratorio, costo, precio de venta y saldo en inventario.
 - **Facturas:** al guardar una factura se asigna la fecha y se calcula el vencimiento según el plazo del cliente.
-- **Cartera automática:** cada factura genera su registro de cartera con el valor pendiente.
-- **Kardex:** cada línea de factura descuenta el saldo del artículo y valida que haya existencias suficientes.
-- **Manejo global de errores:** respuestas JSON consistentes ante errores de negocio.
+- **Control de cupo:** una venta no puede superar el cupo disponible del cliente (cupo menos cartera pendiente). Un cupo de 0 significa sin límite.
+- **Cartera automática:** cada factura genera su registro de cartera con el valor pendiente, en la misma transacción.
+- **Kardex:** las ventas descuentan inventario y las compras lo aumentan. Se valida que haya saldo suficiente y que no se venda por debajo del costo. El tipo de movimiento se toma de la factura guardada, no del cliente.
+- **Validación y errores:** los datos de entrada se validan con Bean Validation y los errores se devuelven en JSON con el código HTTP adecuado.
 
 ## Tecnologías
 
 - Java 17
-- Spring Boot 3.4 (Web, Data JPA)
-- MySQL
+- Spring Boot 3.4 (Web, Data JPA, Validation)
+- MySQL (H2 en memoria para las pruebas)
+- JUnit 5 y Mockito
 - Maven
 
 ## Estructura
@@ -24,7 +26,7 @@ API REST construida con **Spring Boot** para gestionar facturación con control 
 kardexone/src/main/java/com/pruebatecnica/kardexone/
 ├── Config/       # CORS
 ├── Controller/   # Endpoints REST
-├── Exception/    # GlobalExceptionHandler
+├── Exception/    # Excepciones de negocio y manejador global
 ├── Model/        # Nit, Articulo, Factura, FacturaKardex, Cartera, TipoFactura
 ├── Repository/   # Repositorios JPA
 └── Service/      # Reglas de negocio
@@ -34,11 +36,33 @@ kardexone/src/main/java/com/pruebatecnica/kardexone/
 
 | Recurso | Ruta base | Operaciones |
 |---|---|---|
-| Clientes | `/api/nit` | `GET`, `GET /{id}`, `POST`, `DELETE /{id}` |
-| Artículos | `/api/articulo` | `GET`, `GET /{id}`, `GET /codigo/{codigo}`, `POST`, `DELETE /{id}` |
+| Clientes | `/api/nit` | `GET`, `GET /{id}`, `POST`, `PUT /{id}`, `DELETE /{id}` |
+| Artículos | `/api/articulo` | `GET`, `GET /{id}`, `GET /codigo/{codigo}`, `POST`, `PUT /{id}`, `DELETE /{id}` |
 | Facturas | `/api/factura` | `GET`, `GET /{id}`, `POST`, `DELETE /{id}` |
 | Detalle / kardex | `/api/facturakardex` | `GET`, `GET /{id}`, `POST`, `DELETE /{id}` |
 | Cartera | `/api/cartera` | `GET`, `GET /{id}`, `POST`, `DELETE /{id}` |
+
+### Códigos de respuesta
+
+| Código | Cuándo |
+|---|---|
+| `200` / `201` / `204` | Consulta, creación o eliminación exitosa |
+| `400` | Datos inválidos o regla de negocio incumplida (saldo, cupo, precio) |
+| `404` | El recurso no existe |
+| `409` | Registro duplicado o con registros relacionados |
+
+## Configuración
+
+La conexión se configura con variables de entorno:
+
+| Variable | Descripción | Valor por defecto |
+|---|---|---|
+| `DB_URL` | URL JDBC de MySQL | `jdbc:mysql://localhost:3306/kardexone?createDatabaseIfNotExist=true` |
+| `DB_USERNAME` | Usuario de la base de datos | `root` |
+| `DB_PASSWORD` | Contraseña de la base de datos | vacía |
+| `CORS_ALLOWED_ORIGINS` | Orígenes permitidos del frontend, separados por coma | `http://127.0.0.1:5500,http://localhost:5500` |
+| `JPA_DDL_AUTO` | Estrategia de esquema de Hibernate | `update` |
+| `JPA_SHOW_SQL` | Mostrar el SQL en consola | `false` |
 
 ## Cómo ejecutarlo
 
@@ -47,12 +71,25 @@ kardexone/src/main/java/com/pruebatecnica/kardexone/
    git clone https://github.com/juandariver9/SomicSolucionesBackEnd.git
    cd SomicSolucionesBackEnd/kardexone
    ```
-2. Configura la conexión a tu base de datos MySQL en `src/main/resources/application.properties`.
+2. Define las variables de entorno de la base de datos (o usa los valores por defecto con un MySQL local):
+   ```bash
+   export DB_URL="jdbc:mysql://localhost:3306/kardexone?createDatabaseIfNotExist=true"
+   export DB_USERNAME="root"
+   export DB_PASSWORD="tu_contraseña"
+   ```
 3. Ejecuta la aplicación:
    ```bash
    ./mvnw spring-boot:run
    ```
 4. La API queda disponible en `http://localhost:8080/api`.
+
+## Pruebas
+
+```bash
+./mvnw test
+```
+
+Incluye pruebas unitarias de las reglas de facturación y kardex (saldo, cupo, precio mínimo, vencimiento) y una prueba de arranque con H2 en memoria.
 
 ## Autor
 
